@@ -1,0 +1,25 @@
+1.
+5x2 on 6 slaves: 2:17s
+5x2 on 12 slaves: 1:31s 
+4x3 on 12 slaves: 1:05:49s
+
+2.
+(the processing rates for 12 slaves between medium and large were significantly different, so we listed them separately)
+6 instances average (from ec2-medium): 0.1804 MB/s
+12 instances average (from ec2-medium): 0.2730 MB/s
+12 instances average (from ec2-large): 0.9683 MB/s
+
+3.
+We saw around a 46 second increase when going from 6 slaves to 12 slaves. This shows that Spark parallelizes our work quite well, as it seems to be a significantly large jump taking Amdahl's law into consideration.
+This is a case of strong scaling since the total problem size is set -- the board size being either 5x2 or 4x3 -- while the processor's problem size is distributed rather than fixed.
+
+
+4.
+Assuming applications are run just once each in their own cluster (eg. launching a cluster, running ec2-medium once, then destroying the cluster):
+6 slaves (medium - one hour charge) -  164.2 dollars/GB
+12 slaves (medium - one hour charge) - 328.4 dollars/GB
+12 slaves (large - two hours charge) - 4.321 dollars/GB
+
+5.
+We would have spent around $57.12 + $___ in EC2 credits
+

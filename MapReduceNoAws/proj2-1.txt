@@ -1,0 +1,20 @@
+Partner 1 Name: Matthew Dabit
+Partner 1 Login: cs61c-ee
+
+Partner 2 Name: Colby Guan
+Partner 2 Login: cs61c-ain
+
+1.
+The main problem with the friend’s idea is that for some arbitrary board B in middle of the game graph, the friend assumes the number of moves from B to every solution in the level 0 is the same. Additionally one solution could be the child of another solution board eg. one can move from (1, 2, 3, -) to (1, 2, 3, -), so the former’s level would have to be the latter’s level + 1, or vice versa.
+
+
+2.
+Before the MapReducing, we would create a list “S” with all permutations of the solution. We would then proceed like so:
+	1.choose a solution from S, construct entire board graph (an RDD) from using the while loop and MapReduce in our original solver
+	2.from list of this graph, erase other solutions that are inside it
+	3.choose next solution that has not been erased, construct graph from it
+	4.repeat 1 with a separate, new RDD until all solutions are gone from S 
+The possible problem that a solution S1 cannot reach a solution S2, but both have board B in their graphs would be taken care of by the fact that if someone wanted to see the possible moves from B one could make, they could just look in S1’s RDD output as well as S2’s RDD output. We would also change the file output to show clear distinctions between where the data of an RDD/solution graph starts and ends.
+
+3.
+We would store the number of pieces on the board as an alternative to distance to solution. Assuming we are given a working children function, the function flatMap would do the same as our current bfs_map, but also add children which had the same value (“level”) as the parent, since in a game like Peg Solitaire a move does not necessarily remove a piece and increment the level -- along with children that have one less piece and are on the next level. Our reduce would stay nearly the same, just returning the last duplicate (no comparison is needed since duplicates will have the same level/number of pegs). The amount of memory would be around the same for similarly sized sliding block puzzles and Peg Solitaire boards, since in both games, a backwards move is possible, and  both our RDDs at some point would contain all those backwards duplicate moves. 
