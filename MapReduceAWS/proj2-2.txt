@@ -1,37 +1,29 @@
 1.
-5x2 on 6 slaves: 2:27s
-5x2 on 12 slaves: 1:35s 
-4x3 on 12 slaves: 
+5x2 on 6 slaves: 2:17s
+5x2 on 12 slaves: 1:31s 
+4x3 on 12 slaves: 1:05:49s
 
 2.
-6 instances: 21.85 MB / 147s = 0.1486 MB/s
-24845750 B - 2:18s - 0.1800 MB/s
-24845750 / 2:17s - 0.1814 MB/s
-24845750 / 2:18s - 0.1800 MB/s
-
-12 instances: 0.2343 MB/s 
-22263286 / 96
-2582464 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00000
--rw-r--r--   3 root supergroup    1635772 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00001
--rw-r--r--   3 root supergroup    2315763 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00002
--rw-r--r--   3 root supergroup    3027429 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00003
--rw-r--r--   3 root supergroup    1741371 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00004
--rw-r--r--   3 root supergroup    1793573 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00005
--rw-r--r--   3 root supergroup    1840053 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00006
--rw-r--r--   3 root supergroup    1754654 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00007
--rw-r--r--   3 root supergroup    3110753 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00008
--rw-r--r--   3 root supergroup    1274598 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00009
--rw-r--r--   3 root supergroup    1878893 2014-11-02 19:29 /user/root/medium-puzzle-out/part-00010
--rw-r--r--   3 root supergroup    1890427 2
-
-1:31.70elapsed
+(the processing rates for 12 slaves between medium and large were significantly different, so we listed them separately with the combined rate)
+6 instances average (from ec2-medium): 0.1804 MB/s
+12 instances combined average: 0.6252 MB/s
+	12 instances average (from ec2-medium): 0.2820 MB/s
+	12 instances average (from ec2-large): 0.9683 MB/s
 
 3.
-We saw a 43 second increase when going from 6 slaves to 12 slaves. 
+We saw around a 46 second increase when going from 6 slaves to 12 slaves. This shows that Spark parallelizes our work quite well, as it seems to be a significantly large jump taking Amdahl's law into consideration.
+This is a case of strong scaling since the total problem size is set -- the board size being either 5x2 or 4x3 -- while the processor's problem size is from work distribution rather than being fixed.
+
 
 4.
-6 slaves -  
+(The dollars/GB for 12 slaves were signficantyl different, so we listed them separately with the combined dollars/GB
+Assuming applications are run just once each in their own cluster (eg. launching a cluster, running ec2-medium once, then destroying the cluster):
+6 slaves (medium - round up to one hour charge) -  (6 instances * $0.68/hour * 1 hour) / (24845750 bytes / 1000000000 (bytes/GB)) = 164.2 dollars/GB
+12 slaves (combined medium & large - round up to two hours charge) = 4.293 dollars/GB
+	12 slaves (medium - round up to one hour charge) - (12 instances * $0.68/hour * 1 hour) / (24845750 bytes / 1000000000 (bytes/GB)) = 328.4 dollars/GB
+	12 slaves (large - round up to two hours charge) - (12 instances * $0.68/hour * 2 hour) / (3776456323 bytes / 1000000000 (bytes/GB)) = 4.321 dollars/GB
 
 5.
-		
-		
+We spent around $155.04 in EC2 credits between two partners.
+This large cost primary came from 3 instances where we got an error while running the solver and had to destroy and relaunch a cluster (according to a TA on piazza, this was the best option for the error) and a lengthy initial ec2-large runtime (first one ran 2 hours then errored, so we ran again and it took 4 hours). With our part 1 code, local-test took ~3:30s although our run-large from part 1 took ~1:35s. Confused by this, we asked a TA during office hours who said not to completely trust local-test and try ec2-medium on a cluster, which resulted in times of ~1:37 on 12 slaves. From this result we thought our code was fine, which resulted in us having the mentioned 2 lengthy ec2-large runs.
+Our part 1 code did not utilize the global level varaible since we used reduceByKey every N iterations (so the level variable would be incorrect when flatMap was evaluated -- we thought delaying reducing would further utilize lazy evaluation for flatMap, and our runtimes appeared faster when testing in Part 1 compared to without doing it ever N iterations-- mostly likely a result of the heavy variance of runtimes) and defined nested functions specific to the level in our mapping and filtering functions. We suspect that these were the reasons why the ec2-large originally took so long, as after modifying our solver accordingly, local-test ran at around ~1:35 (strangely enough ec2-medium still stayed at ~1:30 as well), and our ec2-large runtime was much shorter.
